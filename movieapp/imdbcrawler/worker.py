@@ -140,7 +140,6 @@ class Worker:
 
 	def getChunks(self, l, n):
 		for i in xrange(0, len(l), n):
-			intI = int(i)
 			yield l[i:i + n]
 
 	def persistMovieGenres(self, movieGenreList):
