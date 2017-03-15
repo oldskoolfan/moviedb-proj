@@ -27,7 +27,12 @@ class WorkerThread(threading.Thread):
 			for g in Genre.objects.all():
 				key = m.title + ':' + g.name
 				if key in self.movieGenres:
-					self.movieGenres[key]['movie_id'] = m.id
-					self.movieGenres[key]['genre_id'] = g.id
+					movieGenreInserts.append(
+						MovieGenre(movie_id = m.id, genre_id = g.id)
+					)
 
-		logger.info(self.movieGenres.values()[0])
+		# bulk insert
+		MovieGenre.objects.bulk_create(movieGenreInserts)
+		ct = len(movieGenreInserts)
+		msg = 'Created %s movie_genre records in thread %s' % (ct, self.name)
+		logger.info(msg)
