@@ -1,9 +1,5 @@
 from django.utils.encoding import smart_text
-from django.db import IntegrityError
-from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-from django_mysqlpool import auto_close_db
 from ftplib import FTP
 from itertools import izip
 from workerthread import WorkerThread
@@ -85,10 +81,8 @@ class Worker:
 		return Movie.objects.count()
 
 	def persistMovies(self, movies):
-		movieInserts = []
-		movieList = {}
-		genreInserts = []
 		genres = set()
+		movieList = {}
 		movieGenreList = {}
 
 		# create list of movie info
@@ -98,8 +92,12 @@ class Worker:
 			genres.add(m['genre'])
 
 		# convert to list of movie objects
-		for key, val in movieList.iteritems():
-			movieInserts.append(Movie(title = val['title'], year = val['year'])) 
+		movieInserts = [
+			Movie(
+				title = val['title'], 
+				year = val['year'],
+			) for key, val in movieList.iteritems() 
+		]
 
 		# delete, then re-add
 		Movie.objects.all().delete()
@@ -107,8 +105,7 @@ class Worker:
 		logger.info("Created %s movie records" % Movie.objects.count())
 
 		# same for genres
-		for g in genres:
-			genreInserts.append(Genre(name = g))
+		genreInserts = [Genre(name = g) for g in genres]
 
 		Genre.objects.all().delete()
 		Genre.objects.bulk_create(genreInserts)
