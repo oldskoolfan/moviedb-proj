@@ -5,6 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django_mysqlpool import auto_close_db
 from ftplib import FTP
+from itertools import izip
+from workerthread import WorkerThread
 from models import *
 import os
 import io
@@ -17,29 +19,6 @@ import threading
 import pdb
 
 logger = logging.getLogger(__name__)
-
-class WorkerThread(threading.Thread):
-	def __init__(self, movieGenres):
-		threading.Thread.__init__(self)
-		self.movieGenres = movieGenres
-
-	def run(self):
-		self.persistMovieGenres()
-
-	@auto_close_db
-	def persistMovieGenres(self):
-		movieGenreInserts = []
-		MovieGenre = Movie.genres.through
-		MovieGenre.objects.all().delete()
-		for m in self.movieGenres:
-			try:
-				movieId = Movie.objects.get(Q(title=m['title']), Q(year=m['year'])).id
-				genreId = Genre.objects.get(name=m['genre']).id
-				movieGenreInserts.append(MovieGenre(movie_id=movieId, genre_id=genreId))
-			except ObjectDoesNotExist:
-				logger.error('could not save movie-genre record for ' + m['title'])
-		MovieGenre.objects.bulk_create(movieGenreInserts)
-		logger.info('Created %s MovieGenre records in thread %s' % (MovieGenre.objects.count(), self.name))
 
 class Worker:
 	GENRE_FILENAME = 'genres.list.gz'
@@ -115,7 +94,7 @@ class Worker:
 		# create list of movie info
 		for m in movies:
 			movieList[m['title'] + str(m['year'])] = m
-			movieGenreList[m['title'] + m['genre']] = m
+			movieGenreList[m['title'] + ':' + m['genre']] = m
 			genres.add(m['genre'])
 
 		# convert to list of movie objects
@@ -136,17 +115,20 @@ class Worker:
 		logger.info("Created %s genre records" % Genre.objects.count())
 
 		# persist movie-genre linking records
-		self.persistMovieGenres(movieGenreList.values())
+		self.persistMovieGenres(movieGenreList)
 
 	def getChunks(self, l, n):
 		for i in xrange(0, len(l), n):
-			yield l[i:i + n]
+			keys = l.keys()[i:i + n]
+			vals = l.values()[i:i + n]
+			yield dict(izip(keys, vals))
 
 	def persistMovieGenres(self, movieGenreList):
+		MovieGenre = Movie.genres.through
+		MovieGenre.objects.all().delete()
 		threads = []
 		chunkSize =  len(movieGenreList) / 10
-		chunks = self.getChunks(movieGenreList, chunkSize)
-		for chunk in chunks:
+		for chunk in self.getChunks(movieGenreList, chunkSize):
 			thread = WorkerThread(chunk)
 			thread.start()
 			threads.append(thread)

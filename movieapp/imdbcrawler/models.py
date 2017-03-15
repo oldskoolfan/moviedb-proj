@@ -10,6 +10,6 @@ class Movie(models.Model):
 	class Meta:
 		db_table = 'movie'
 
-	title = models.TextField()
+	title = models.CharField(max_length=1000, db_index=True)
 	year = models.PositiveIntegerField()
 	genres = models.ManyToManyField(Genre, db_table="movies_genres")
