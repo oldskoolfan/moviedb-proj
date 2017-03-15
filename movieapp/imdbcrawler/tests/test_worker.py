@@ -38,6 +38,7 @@ def testGetChunks():
 	chunkSize = len(d) / 3
 	worker = Worker()
 	i = 0
+	
 	for chunk in worker.getChunks(d, chunkSize):
 		assert chunk == expected[i]
 		i += 1
