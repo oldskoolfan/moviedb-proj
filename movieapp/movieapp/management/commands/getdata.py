@@ -1,22 +1,21 @@
 """
-manage.py command for parsing genres.list file
+manage.py command for hitting omdbapi for rotten tomatoes data
 """
+
 from datetime import datetime
-from imdbcrawler.fileworker import FileWorker
 from django.core.management.base import BaseCommand, CommandError
+from imdbcrawler.httpworker import HttpWorker
 
 class Command(BaseCommand):
     """ our command class, extending django BaseCommand """
     
     def handle(self, *args, **options):
-        """ create worker, parse list file """
-        
+        """ have http worker hit omdbapi for movies in db """
+
         self.stdout.write(self.style.SUCCESS('start: %s' % datetime.now()))
         try:
-            myWork = FileWorker()
-            numberOfMovies = myWork.parseList()
+            worker = HttpWorker()
+            worker.getMovieInfo()
             self.stdout.write(self.style.SUCCESS('end: %s' % datetime.now()))
-            msg = "Number of movies: %s" % numberOfMovies
-            self.stdout.write(self.style.SUCCESS(msg))
         except Exception as e:
             raise CommandError(e)

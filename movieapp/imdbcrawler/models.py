@@ -19,7 +19,8 @@ class Movie(models.Model):
     class Meta:
         db_table = 'movie'
 
-    title = models.CharField(max_length=1000, db_index=True)
+    title = models.CharField(max_length=767, db_index=True)
     year = models.PositiveIntegerField()
+    rating = models.DecimalField(max_digits=3, decimal_places=1, null=True)
     genres = models.ManyToManyField(Genre, db_table="movies_genres")
     

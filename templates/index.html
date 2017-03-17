@@ -1,0 +1,10 @@
+{% include "inc/header.html" %}
+<h1>Welcome to the Stupid Movie Recommender</h1>
+<table>
+<tr><th>Title</th><th>Year</th><th>IMDb Rating</th></tr>
+{% for m in movies %}
+  <tr><td>{{ m.title }}</td><td>{{ m.year }}</td><td>{{ m.rating }}</td></tr>
+{% endfor %}
+</table>
+
+{% include "inc/footer.html" %}
