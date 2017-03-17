@@ -2,7 +2,7 @@
 test Worker class
 """
 
-from imdbcrawler.worker import Worker
+from imdbcrawler.fileworker import FileWorker
 
 def testGetChunks():
     """
@@ -45,6 +45,6 @@ def testGetChunks():
     chunkSize = len(d) / 3
     i = 0
     
-    for chunk in Worker.getChunks(d, chunkSize):
+    for chunk in FileWorker.getChunks(d, chunkSize):
         assert chunk == expected[i]
         i += 1

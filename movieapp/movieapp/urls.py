@@ -4,9 +4,9 @@ url patterns for web interface
 
 from django.conf.urls import url
 from django.contrib import admin
-from imdbcrawler import views
+from imdbcrawler.views import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.index, name="index"),
+    url(r'^$', IndexView.as_view(), name="index"),
 ]

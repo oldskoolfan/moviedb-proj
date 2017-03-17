@@ -12,18 +12,18 @@ from ftplib import FTP
 from itertools import izip
 from django.utils.encoding import smart_text
 from django.conf import settings
+from imdbcrawler.baseworker import BaseWorker
 from imdbcrawler.workerthread import WorkerThread
 from imdbcrawler.models import Movie, Genre
 
 
 LOGGER = logging.getLogger(__name__)
 
-class Worker(object):
+class FileWorker(BaseWorker):
     """ worker class """
-    
-    def __init__(self):
-        pass
 
+    FTP_POST = 'ftp.fu-berlin.de'
+    FTP_DIR = '/pub/misc/movies/database/'
     GENRE_FILENAME = 'genres.list.gz'
     TMP_NAME = settings.BASE_DIR + "/../tmp/tmpfile.list"
     TEST_NAME = settings.BASE_DIR + "/../tmp/test.list"
@@ -41,11 +41,11 @@ class Worker(object):
             if os.path.isfile(self.TMP_NAME):
                 os.remove(self.TMP_NAME)
             tmpFile = io.open(self.TMP_NAME, mode='w+b')
-            ftp = FTP('ftp.fu-berlin.de')
+            ftp = FTP(self.FTP_POST)
 
             # login to ftp
             ftp.login()
-            ftp.cwd('/pub/misc/movies/database/')
+            ftp.cwd(self.FTP_DIR)
             
             # get genres zip file, decompress and save
             retrCmd = 'RETR %s' % self.GENRE_FILENAME
@@ -124,15 +124,6 @@ class Worker(object):
 
         # persist movie-genre linking records
         self.persistMovieGenres(movieGenreList)
-
-    @staticmethod
-    def getChunks(l, n):
-        """ break dict into n chunks """
-
-        for i in xrange(0, len(l), n):
-            keys = l.keys()[i:i + n]
-            vals = l.values()[i:i + n]
-            yield dict(izip(keys, vals))
 
     def persistMovieGenres(self, movieGenreList):
         """ open up to 10 threads to process the MovieGenre records """
