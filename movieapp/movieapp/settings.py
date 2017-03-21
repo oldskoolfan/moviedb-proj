@@ -88,11 +88,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'django.db': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
+        # 'django.db': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
     },
 }
 
