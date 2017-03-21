@@ -1,7 +1,6 @@
 """
 worker class - get genres.gz from imdb ftp, process into movie and genre tables
 """
-import pdb
 import os
 import io
 import re
@@ -12,7 +11,6 @@ import threading
 import logging
 from Queue import Queue
 from ftplib import FTP
-from itertools import izip
 from django.utils.encoding import smart_text
 from django.conf import settings
 from django_mysqlpool import auto_close_db
