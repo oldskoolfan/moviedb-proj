@@ -10,7 +10,7 @@ def testParseList():
     fileworker = FileWorker()
     
     genreRows = [
-    	fileworker.FILES[0]['startstr'],
+        fileworker.FILES[0]['startstr'],
         '"#Shelfie with Dan Hong" (2016)\tDocumentary',
         '"1002 Momentos de la tele" (2012)\t\tBiography',
         'A Whales Adventure (2009)\t\t\tAnimation',
@@ -33,3 +33,4 @@ def testParseList():
     movies = thread.movies
 
     assert len(movies) == 1
+    
