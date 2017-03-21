@@ -5,8 +5,6 @@ import logging
 from django.views.generic import TemplateView
 from django.db.models import F
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
-from imdbcrawler.worker import Worker
 from models import Movie
 
 LOGGER = logging.getLogger(__name__)
