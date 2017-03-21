@@ -20,8 +20,11 @@ from imdbcrawler.models import Movie, Genre
 
 LOGGER = logging.getLogger(__name__)
 
-class FileWorker:
+class FileWorker(object):
     """ worker class """
+
+    def __init__(self):
+        pass
 
     FILES = [
         {
@@ -227,8 +230,10 @@ class ParseThread(threading.Thread):
         with io.open(self.listFile['tmpname'], mode='rb') as text:
             self.parseList(text)
 
-    def addToOrInitList(self, field, movie, match):
+    @staticmethod
+    def addToOrInitList(field, movie, match):
         """ add to list or create new one """
+
         if field['name'] in movie and isinstance(movie[field['name']], list):
             movie[field['name']].append(match)
         else:
