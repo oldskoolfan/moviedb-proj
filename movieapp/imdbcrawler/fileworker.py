@@ -10,21 +10,17 @@ import traceback
 import zlib
 import threading
 import logging
-import requests
-from requests.exceptions import ReadTimeout, ConnectionError, HTTPError
 from Queue import Queue
 from ftplib import FTP
 from itertools import izip
-from django.db import transaction
 from django.utils.encoding import smart_text
 from django.conf import settings
 from django_mysqlpool import auto_close_db
-from imdbcrawler.baseworker import BaseWorker
 from imdbcrawler.models import Movie, Genre
 
 LOGGER = logging.getLogger(__name__)
 
-class FileWorker(BaseWorker):
+class FileWorker:
     """ worker class """
 
     FILES = [
