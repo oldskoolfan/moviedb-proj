@@ -88,6 +88,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django.db': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
@@ -106,6 +111,9 @@ DATABASES = {
     }
 }
 
+MYSQLPOOL_ARGUMENTS = {
+    'pool_size': 20,
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
