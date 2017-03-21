@@ -25,6 +25,7 @@ class IndexView(TemplateView):
             'music',
             'musical',
             'experimental',
+            'reality-tv',
         ]
         movies = Movie.objects.filter(rating__isnull=False).exclude(genres__name__in=badGenres).order_by(
             F('rating').desc(), 

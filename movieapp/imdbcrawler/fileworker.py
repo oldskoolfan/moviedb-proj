@@ -37,8 +37,8 @@ class FileWorker:
                 },
                 {
                     'name': 'genre',
-                    'type': 'string',
-                    'regex': r'(?<=\t)([^\s]+)$',
+                    'type': 'string[]',
+                    'regex': r'(?<=[\)\}])([^\(\)\{\}]+)$',
                 },
                 {
                     'name': 'year',
@@ -145,8 +145,9 @@ class FileWorker:
         # create list of movie info
         for m in movies:
             movieList[m['title'] + str(m['year'])] = m
-            movieGenreList[m['title'] + ':' + m['genre']] = m
-            genres.add(m['genre'])
+            for g in m['genre']:
+                movieGenreList[m['title'] + ':' + g] = m
+                genres.add(g)
 
         # convert to list of movie objects
         movieInserts = [
@@ -219,6 +220,15 @@ class ParseThread(threading.Thread):
         with io.open(self.listFile['tmpname'], mode='rb') as text:
             self.parseList(text)
 
+    def addToOrInitList(self, field, movie, match):
+        """ add to list or create new one """
+        if field['name'] in movie and isinstance(movie[field['name']], list):
+            movie[field['name']].append(match)
+        else:
+            movie[field['name']] = [match]
+
+        return movie
+
     def parseList(self, text):
         """ heavy lifting...parse a million-something records from text file """
 
@@ -231,23 +241,36 @@ class ParseThread(threading.Thread):
                 foundStart = safeLine.find(self.listFile['startstr']) >= 0
             if foundStart:
                 missing = False
+                
                 for field in self.listFile['fields']:
-                    match = re.search(field['regex'], safeLine)
-                    if missing: 
-                        continue
+                    match = re.search(field['regex'], safeLine, re.MULTILINE)
                     missing = match is None
-                    if not missing:
-                        if field['type'] == 'string':
-                            match = match.group(0).lower().strip().replace('"', '')
-                        elif field['type'] == 'int':
-                            match = int(match.group(0))
-                        elif field['type'] == 'float':
-                            match = float(match.group(0))
+                    
+                    if missing: 
+                        break    
+                    
+                    if field['type'] == 'string' or field['type'] == 'string[]':
+                        match = match.group(0).lower().strip().replace('"', '')
+                    elif field['type'] == 'int':
+                        match = int(match.group(0))
+                    elif field['type'] == 'float':
+                        match = float(match.group(0))
+
+                    if field['type'] != 'string[]':
                         movie[field['name']] = match
+                    else:
+                        movie = self.addToOrInitList(field, movie, match)
+                
                 if not missing:
                     title = movie['title']
                     year = str(movie['year'])
-                    self.movies[title + ':' + year] = movie
+                    key = title + ':' + year
+                    if key in self.movies:
+                        for fKey, fVal in movie.iteritems():
+                            if isinstance(fVal, list):
+                                self.movies[key][fKey] += fVal
+                    else:
+                        self.movies[title + ':' + year] = movie
 
 class FileThread(threading.Thread):
     """ thread class for getting data files """
