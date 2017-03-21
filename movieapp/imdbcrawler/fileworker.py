@@ -214,40 +214,40 @@ class ParseThread(threading.Thread):
         self.movies = {}
 
     def run(self):
-        self.parseList()
+        """ parse genre text file """
 
-    def parseList(self):
+        with io.open(self.listFile['tmpname'], mode='rb') as text:
+            self.parseList(text)
+
+    def parseList(self, text):
         """ heavy lifting...parse a million-something records from text file """
 
         safeLine = u''
         foundStart = False
-
-        # parse genre text file
-        with io.open(self.listFile['tmpname'], mode='rb') as text:
-            for line in text:
-                movie = {}
-                safeLine = smart_text(line, errors='ignore')
-                if not foundStart:
-                    foundStart = safeLine.find(self.listFile['startstr']) >= 0
-                if foundStart:
-                    missing = False
-                    for field in self.listFile['fields']:
-                        match = re.search(field['regex'], safeLine)
-                        if missing: 
-                            continue
-                        missing = match is None
-                        if not missing:
-                            if field['type'] == 'string':
-                                match = match.group(0).lower().strip().replace('"', '')
-                            elif field['type'] == 'int':
-                                match = int(match.group(0))
-                            elif field['type'] == 'float':
-                                match = float(match.group(0))
-                            movie[field['name']] = match
+        for line in text:
+            movie = {}
+            safeLine = smart_text(line, errors='ignore')
+            if not foundStart:
+                foundStart = safeLine.find(self.listFile['startstr']) >= 0
+            if foundStart:
+                missing = False
+                for field in self.listFile['fields']:
+                    match = re.search(field['regex'], safeLine)
+                    if missing: 
+                        continue
+                    missing = match is None
                     if not missing:
-                        title = movie['title']
-                        year = str(movie['year'])
-                        self.movies[title + ':' + year] = movie
+                        if field['type'] == 'string':
+                            match = match.group(0).lower().strip().replace('"', '')
+                        elif field['type'] == 'int':
+                            match = int(match.group(0))
+                        elif field['type'] == 'float':
+                            match = float(match.group(0))
+                        movie[field['name']] = match
+                if not missing:
+                    title = movie['title']
+                    year = str(movie['year'])
+                    self.movies[title + ':' + year] = movie
 
 class FileThread(threading.Thread):
     """ thread class for getting data files """
