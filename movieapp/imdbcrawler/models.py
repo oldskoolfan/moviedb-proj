@@ -22,5 +22,6 @@ class Movie(models.Model):
     title = models.CharField(max_length=767, db_index=True)
     year = models.PositiveIntegerField()
     rating = models.DecimalField(max_digits=3, decimal_places=1, null=True)
+    votes = models.PositiveIntegerField(null=True)
     genres = models.ManyToManyField(Genre, db_table="movies_genres")
     

@@ -28,6 +28,7 @@ class IndexView(TemplateView):
             'reality-tv',
         ]
         movies = Movie.objects.filter(rating__isnull=False).exclude(genres__name__in=badGenres).order_by(
+            F('votes').desc(),
             F('rating').desc(), 
             'title', 
             F('year').desc(),

@@ -64,6 +64,11 @@ class FileWorker:
                     'regex': r'(?<=[0-9]\s\s\s)([0-9]+\.[0-9])',
                 },
                 {
+                    'name': 'votes',
+                    'type': 'int',
+                    'regex': r'[0-9]+(?=\s\s[0-9\s][0-9]\.[0-9])',
+                },
+                {
                     'name': 'year',
                     'type': 'int',
                     'regex': r'(?<=\()([0-9]+)(?=\))',
@@ -128,6 +133,7 @@ class FileWorker:
         for k, v in movieLists[0].iteritems():
             if k in movieLists[1]:
                 v['rating'] = movieLists[1][k]['rating']
+                v['votes'] = movieLists[1][k]['votes']
                 movies.append(v)
 
         # save to database
@@ -155,6 +161,7 @@ class FileWorker:
                 title=val['title'], 
                 year=val['year'], 
                 rating=val['rating'],
+                votes=val['votes'],
             ) for val in movieList.itervalues()
         ]
 
