@@ -2,3 +2,4 @@
 env/
 tmp/*.list
 *.pyc
+settings.py

@@ -303,7 +303,6 @@ class FileThread(threading.Thread):
         callback = lambda x: self.file['fileobj'].write(self.zipObj.decompress(x))
         self.ftp.retrbinary(retrCmd, callback)
 
-
 class WorkerThread(threading.Thread):
     """ thread class for persisting MovieGenres """
 
